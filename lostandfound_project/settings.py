@@ -69,7 +69,8 @@ ROOT_URLCONF = 'lostandfound_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        # THIS LINE IS CRUCIAL:
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,8 +78,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media', # Essential for accessing profile images in templates
-                'core.context_processors.unread_messages_count',
             ],
         },
     },
@@ -159,6 +158,7 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 # --------------------------------------------------
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 
 
