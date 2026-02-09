@@ -22,7 +22,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-local-dev')
 DEBUG = False
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'losttfoundd-r41v.onrender.com',]
+ALLOWED_HOSTS = [
+    'losttfoundd-r41v.onrender.com', 
+    '127.0.0.1', 
+    'localhost'
+]
 
 # --------------------------------------------------
 # APPLICATIONS
@@ -159,4 +163,5 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 # --------------------------------------------------
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
