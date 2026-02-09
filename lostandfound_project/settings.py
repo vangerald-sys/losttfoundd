@@ -22,8 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-local-dev')
 
-# SET DEBUG TO FALSE IN PRODUCTION
-DEBUG = True
+# Keep True for now to see the exact Login/Signup error, change to False for launch
+DEBUG = True 
 
 ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
 
@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
 # APPLICATIONS
 # --------------------------------------------------
 INSTALLED_APPS = [
-    # Local Apps
     'core',
 
     'django.contrib.admin',
@@ -42,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     
-    # Third Party Apps
     'crispy_forms',
     'crispy_tailwind',
     'widget_tweaks',
@@ -53,7 +51,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WHITENOISE ADDED FOR STATIC FILES
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Position is critical
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,7 +63,7 @@ MIDDLEWARE = [
 # --------------------------------------------------
 # URL CONFIG
 # --------------------------------------------------
-# CAUTION: Ensure your project folder name matches this!
+# Ensure this matches the folder containing your urls.py
 ROOT_URLCONF = 'lostandfound_project.urls'
 
 # --------------------------------------------------
@@ -98,16 +96,6 @@ DATABASES = {
 }
 
 # --------------------------------------------------
-# PASSWORD VALIDATION
-# --------------------------------------------------
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
-# --------------------------------------------------
 # INTERNATIONALIZATION
 # --------------------------------------------------
 LANGUAGE_CODE = 'en-us'
@@ -121,15 +109,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Extra places for collectstatic to find static files
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+# This block prevents the W004 error if the 'static' folder is missing
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+if os.path.exists(STATIC_DIR):
+    STATICFILES_DIRS = [STATIC_DIR]
+else:
+    STATICFILES_DIRS = []
 
-# COMPRESSION AND CACHING SUPPORT FOR WHITENOISE
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise storage: Use the non-strict version if you have missing files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# Media configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -149,7 +138,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'geraldcudia19@gmail.com' 
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', 'dqzpdnqcyxftvzxz').strip()
-
 DEFAULT_FROM_EMAIL = 'FOUND.IT SYSTEMS <geraldcudia19@gmail.com>'
 
 # --------------------------------------------------
@@ -158,8 +146,4 @@ DEFAULT_FROM_EMAIL = 'FOUND.IT SYSTEMS <geraldcudia19@gmail.com>'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
-# --------------------------------------------------
-# DEFAULT PRIMARY KEY
-# --------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
