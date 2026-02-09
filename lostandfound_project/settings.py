@@ -1,6 +1,6 @@
 """
 Django settings for lostandfound_project project.
-Updated for Django 5.2+ with Brutalist Tailwind support.
+Updated for Render Deployment with WhiteNoise & Security.
 """
 
 import os
@@ -21,7 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY SETTINGS
 # --------------------------------------------------
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-local-dev')
-DEBUG = False
+
+# SET DEBUG TO FALSE IN PRODUCTION
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
 ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
 
 # --------------------------------------------------
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- WHITENOISE ADDED FOR STATIC FILES
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,6 +65,7 @@ MIDDLEWARE = [
 # --------------------------------------------------
 # URL CONFIG
 # --------------------------------------------------
+# CAUTION: Ensure your project folder name matches this!
 ROOT_URLCONF = 'lostandfound_project.urls'
 
 # --------------------------------------------------
@@ -69,7 +74,6 @@ ROOT_URLCONF = 'lostandfound_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # THIS LINE IS CRUCIAL:
         'DIRS': [os.path.join(BASE_DIR, 'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
@@ -115,27 +119,29 @@ USE_TZ = True
 # STATIC & MEDIA FILES
 # --------------------------------------------------
 STATIC_URL = '/static/'
-PROJECT_STATIC_DIR = BASE_DIR / "static"
-PROJECT_STATIC_DIR.mkdir(exist_ok=True) 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-STATICFILES_DIRS = [PROJECT_STATIC_DIR]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# Extra places for collectstatic to find static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
-# Media configuration for User Identity (Avatars/Images)
+# COMPRESSION AND CACHING SUPPORT FOR WHITENOISE
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media configuration
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-# Ensure directory exists for system uploads
-MEDIA_ROOT.mkdir(exist_ok=True)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --------------------------------------------------
 # AUTH SETTINGS
 # --------------------------------------------------
 LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'core:dashboard' # Redirecting to dashboard after login is usually preferred
+LOGIN_REDIRECT_URL = 'core:dashboard'
 LOGOUT_REDIRECT_URL = 'core:home'
 
 # --------------------------------------------------
-# EMAIL SETTINGS (Brutalist System Update)
+# EMAIL SETTINGS
 # --------------------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -144,7 +150,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'geraldcudia19@gmail.com' 
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', 'dqzpdnqcyxftvzxz').strip()
 
-# Brutalist Transmission Identity
 DEFAULT_FROM_EMAIL = 'FOUND.IT SYSTEMS <geraldcudia19@gmail.com>'
 
 # --------------------------------------------------
@@ -156,11 +161,4 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 # --------------------------------------------------
 # DEFAULT PRIMARY KEY
 # --------------------------------------------------
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-
-
-
-
