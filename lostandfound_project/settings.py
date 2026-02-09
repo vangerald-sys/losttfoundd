@@ -1,6 +1,6 @@
 """
 Django settings for lostandfound_project project.
-Updated for Render Deployment with WhiteNoise & Security.
+Updated for Render Deployment: Static handling removed & Template paths fixed.
 """
 
 import os
@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-local-dev')
 
-# Keep True for now to see the exact Login/Signup error, change to False for launch
+# DEBUG is True to show error details. Set to False for final launch.
 DEBUG = True 
 
 ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Position is critical
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,15 +63,15 @@ MIDDLEWARE = [
 # --------------------------------------------------
 # URL CONFIG
 # --------------------------------------------------
-# Ensure this matches the folder containing your urls.py
 ROOT_URLCONF = 'lostandfound_project.urls'
 
 # --------------------------------------------------
-# TEMPLATES
+# TEMPLATES (The fix for TemplateDoesNotExist)
 # --------------------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # This tells Django to look in the /templates folder in your root directory
         'DIRS': [os.path.join(BASE_DIR, 'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
@@ -104,19 +104,16 @@ USE_I18N = True
 USE_TZ = True
 
 # --------------------------------------------------
-# STATIC & MEDIA FILES
+# STATIC & MEDIA FILES (Simplified to remove W004 warning)
 # --------------------------------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# This block prevents the W004 error if the 'static' folder is missing
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
-if os.path.exists(STATIC_DIR):
-    STATICFILES_DIRS = [STATIC_DIR]
-else:
-    STATICFILES_DIRS = []
+# We removed STATICFILES_DIRS to stop the "Directory does not exist" warning.
+# Django will now only look for static files inside your app folders or admin.
+STATICFILES_DIRS = []
 
-# WhiteNoise storage: Use the non-strict version if you have missing files
+# WhiteNoise: Using a simpler storage to prevent errors if CSS is missing
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
