@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
-# This line installs gunicorn!
 pip install -r requirements.txt
-
-python manage.py collectstatic --noinput
-python manage.py migrate
+python manage.py collectstatic --no-input
+python manage.py migrate  # <--- THIS IS THE CRITICAL LINE
