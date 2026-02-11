@@ -1,11 +1,11 @@
 """
 Django settings for lostandfound_project project.
-Updated for Render Deployment.
+Updated for Render Deployment: Security, Database, and Static fixes.
 """
 
 import os
 from pathlib import Path
-import dj_database_url # Highly recommended: pip install dj-database-url
+import dj_database_url
 from dotenv import load_dotenv
 
 # --------------------------------------------------
@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key')
 
-# This will look for a RENDER environment variable to set DEBUG to False automatically
+# Set DEBUG to True in Render Environment Variables for troubleshooting
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
 
-# REQUIRED for Django 4.0+ on Render (prevents 403 errors on forms)
+# CSRF_TRUSTED_ORIGINS is mandatory for Django 4+ on Render to prevent 403/500 errors on forms
 CSRF_TRUSTED_ORIGINS = ['https://losttfoundd-r41v.onrender.com']
 
 # --------------------------------------------------
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Must be after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,8 +84,6 @@ TEMPLATES = [
 # --------------------------------------------------
 # DATABASE
 # --------------------------------------------------
-# Note: SQLite data is DELETED every time you redeploy on Render.
-# Consider using a Render PostgreSQL database for production.
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
@@ -107,7 +105,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# If you have a /static/ folder in your root directory:
 if (BASE_DIR / 'static').exists():
     STATICFILES_DIRS = [BASE_DIR / 'static']
 
@@ -131,9 +128,26 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'geraldcudia19@gmail.com'
-# Use the environment variable, fallback to the provided string if not set
+# App Password from Google: dqzpdnqcyxftvzxz
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', 'dqzpdnqcyxftvzxz').strip()
 DEFAULT_FROM_EMAIL = 'FOUND.IT SYSTEMS <geraldcudia19@gmail.com>'
+
+# --------------------------------------------------
+# LOGGING (This will show the real error in Render logs)
+# --------------------------------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
 # --------------------------------------------------
 # CRISPY FORMS
