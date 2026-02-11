@@ -1,10 +1,11 @@
 """
 Django settings for lostandfound_project project.
-Updated for Render Deployment: Static handling removed & Template paths fixed.
+Updated for Render Deployment.
 """
 
 import os
 from pathlib import Path
+import dj_database_url # Highly recommended: pip install dj-database-url
 from dotenv import load_dotenv
 
 # --------------------------------------------------
@@ -12,27 +13,26 @@ from dotenv import load_dotenv
 # --------------------------------------------------
 load_dotenv()
 
-# --------------------------------------------------
-# BASE DIRECTORY
-# --------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --------------------------------------------------
 # SECURITY SETTINGS
 # --------------------------------------------------
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-local-dev')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key')
 
-# DEBUG is True to show error details. Set to False for final launch.
-DEBUG = True 
+# This will look for a RENDER environment variable to set DEBUG to False automatically
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
+
+# REQUIRED for Django 4.0+ on Render (prevents 403 errors on forms)
+CSRF_TRUSTED_ORIGINS = ['https://losttfoundd-r41v.onrender.com']
 
 # --------------------------------------------------
 # APPLICATIONS
 # --------------------------------------------------
 INSTALLED_APPS = [
     'core',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Must be after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,19 +60,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# --------------------------------------------------
-# URL CONFIG
-# --------------------------------------------------
 ROOT_URLCONF = 'lostandfound_project.urls'
 
 # --------------------------------------------------
-# TEMPLATES (The fix for TemplateDoesNotExist)
+# TEMPLATES
 # --------------------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # This tells Django to look in the /templates folder in your root directory
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        'DIRS': [BASE_DIR / 'templates'], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,11 +84,13 @@ TEMPLATES = [
 # --------------------------------------------------
 # DATABASE
 # --------------------------------------------------
+# Note: SQLite data is DELETED every time you redeploy on Render.
+# Consider using a Render PostgreSQL database for production.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
 
 # --------------------------------------------------
@@ -104,20 +102,19 @@ USE_I18N = True
 USE_TZ = True
 
 # --------------------------------------------------
-# STATIC & MEDIA FILES (Simplified to remove W004 warning)
+# STATIC & MEDIA FILES
 # --------------------------------------------------
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# We removed STATICFILES_DIRS to stop the "Directory does not exist" warning.
-# Django will now only look for static files inside your app folders or admin.
-STATICFILES_DIRS = []
+# If you have a /static/ folder in your root directory:
+if (BASE_DIR / 'static').exists():
+    STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# WhiteNoise: Using a simpler storage to prevent errors if CSS is missing
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # --------------------------------------------------
 # AUTH SETTINGS
@@ -133,12 +130,13 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'geraldcudia19@gmail.com' 
+EMAIL_HOST_USER = 'geraldcudia19@gmail.com'
+# Use the environment variable, fallback to the provided string if not set
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', 'dqzpdnqcyxftvzxz').strip()
 DEFAULT_FROM_EMAIL = 'FOUND.IT SYSTEMS <geraldcudia19@gmail.com>'
 
 # --------------------------------------------------
-# CRISPY FORMS CONFIGURATION
+# CRISPY FORMS
 # --------------------------------------------------
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
