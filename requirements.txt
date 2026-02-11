@@ -85,9 +85,10 @@ uvicorn==0.40.0
 webencodings==0.5.1
 Werkzeug==3.1.4
 xhtml2pdf==0.2.17
-whitenoise
-gunicorn
-dj-database-url
+dj-database-url==2.5.0
+gunicorn==23.0.0
+whitenoise==6.9.0
+
 
 
 
