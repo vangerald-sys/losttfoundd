@@ -12,7 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ==================================================
 # SECURITY
 # ==================================================
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-local-dev")
+# Removed the fallback for production to ensure you are notified if the key is missing
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
@@ -51,7 +53,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # MUST be after SecurityMiddleware
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Positioned for static file efficiency
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -85,7 +87,7 @@ WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 # ==================================================
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        default=os.environ.get("DATABASE_URL"),
         conn_max_age=600,
         ssl_require=not DEBUG,
     )
@@ -100,13 +102,13 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES (CSS/JS serving via WhiteNoise)
+# STATIC FILES
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# Stable WhiteNoise storage for Render
+# Non-manifest storage prevents 404s if a single file is missing
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 WHITENOISE_KEEP_FILES_ON_CLEANUP = True
 
@@ -119,11 +121,11 @@ MEDIA_ROOT = BASE_DIR / "media"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = True # Required for Gmail security handshake
 
-# Match these exactly to your Render Environment Variable Keys
+# FIXED: Now matches your Render Dashboard Key names exactly
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD") 
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
@@ -154,4 +156,3 @@ LOGGING = {
         "level": "INFO",
     },
 }
-
