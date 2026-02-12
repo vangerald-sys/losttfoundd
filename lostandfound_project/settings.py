@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ==================================================
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-local-dev")
 
+# Keep DEBUG False in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
@@ -39,7 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "whitenoise.runserver_nostatic",  # Helps with static files in development
+    "whitenoise.runserver_nostatic",  
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "crispy_forms",
@@ -52,7 +53,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # MUST stay right here
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Keep this right here
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -104,14 +105,15 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES (Crucial for Admin Design)
+# STATIC FILES (Fixed for Render Colors)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# Tells Django to use WhiteNoise for serving CSS/JS on Render
+# Optimized WhiteNoise storage for better performance
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_KEEP_FILES_ON_CLEANUP = True
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -124,14 +126,13 @@ LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
 # ==================================================
-# EMAIL CONFIGURATION (Gmail App Password)
+# EMAIL CONFIGURATION
 # ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# These pull from your Render Environment Variables
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
@@ -154,9 +155,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
     "root": {
