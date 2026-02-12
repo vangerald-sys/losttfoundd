@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from cloudinary.models import CloudinaryField  # Import Cloudinary
 
 User = get_user_model()
 
@@ -11,11 +12,11 @@ User = get_user_model()
 # ----------------------------------------
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    image = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    # Updated to CloudinaryField
+    image = CloudinaryField('image', folder='profile_pics/', blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True) 
     
-    # Cyber Metadata
     trust_score = models.IntegerField(default=98)
     security_clearance = models.CharField(max_length=20, default="Tier_01")
 
@@ -58,7 +59,8 @@ class Item(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     date_happened = models.DateField()
-    image = models.ImageField(upload_to='item_images/', blank=True, null=True)
+    # Updated to CloudinaryField
+    image = CloudinaryField('image', folder='item_images/', blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ACTIVE, db_index=True)
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reported_items')
@@ -81,7 +83,6 @@ class Item(models.Model):
     def __str__(self):
         return f">> [ {self.get_item_type_display().upper()} ] : {self.title.upper()}"
 
-    # --- ADDED UTILITY FOR THE ARCHIVE FILTER ---
     @property
     def is_archived(self):
         return self.status == self.STATUS_RESOLVED
@@ -108,7 +109,8 @@ class Message(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     body = models.TextField(blank=True, null=True) 
-    attachment = models.ImageField(upload_to='chat_images/', null=True, blank=True)
+    # Updated to CloudinaryField
+    attachment = CloudinaryField('image', folder='chat_images/', null=True, blank=True)
     is_read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -153,9 +155,7 @@ class ResolutionRequest(models.Model):
     def is_fully_confirmed(self):
         return self.reporter_confirmed and self.claimant_confirmed
 
-    # --- ADDED HELPER FOR UI BUTTONS ---
     def get_status_for_user(self, user):
-        """Returns whether the specific user has signed the handshake yet."""
         if user == self.item.user:
             return self.reporter_confirmed
         if user == self.claimant:
@@ -163,12 +163,10 @@ class ResolutionRequest(models.Model):
         return None
 
     def save(self, *args, **kwargs):
-        # Auto-set item to pending if handshake begins
         if (self.reporter_confirmed or self.claimant_confirmed) and self.item.status == Item.STATUS_ACTIVE:
             self.item.status = Item.STATUS_PENDING
             self.item.save()
 
-        # Finalize archive when both sign
         if self.is_fully_confirmed():
             item = self.item
             if item.status != Item.STATUS_RESOLVED:
