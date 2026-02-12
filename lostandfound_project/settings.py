@@ -16,7 +16,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-loca
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# Fixed: Added the correct URL from your error logs (losttfoundd with two 't's)
+# Fixed: Includes both variations and wildcards to prevent DisallowedHost errors
 ALLOWED_HOSTS = [
     "lostfoundd-r41v.onrender.com",
     "losttfoundd-r41v.onrender.com",
@@ -25,7 +25,6 @@ ALLOWED_HOSTS = [
     ".onrender.com",
 ]
 
-# Fixed: Added the correct origin for CSRF protection
 CSRF_TRUSTED_ORIGINS = [
     "https://lostfoundd-r41v.onrender.com",
     "https://losttfoundd-r41v.onrender.com",
@@ -109,9 +108,7 @@ USE_TZ = True
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
@@ -125,7 +122,7 @@ LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
 # ==================================================
-# EMAIL CONFIGURATION
+# EMAIL CONFIGURATION (Corrected for Gmail App Password)
 # ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
