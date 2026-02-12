@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Keep this right here
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correctly placed
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -105,14 +105,14 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES (Fixed for Render Colors)
+# STATIC FILES (FIXED FOR DESIGN)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# Optimized WhiteNoise storage for better performance
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# CHANGED: Switched to the more stable version to fix 404 design errors
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 WHITENOISE_KEEP_FILES_ON_CLEANUP = True
 
 MEDIA_URL = "/media/"
