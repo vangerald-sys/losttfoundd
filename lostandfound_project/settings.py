@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ==================================================
 # SECURITY
 # ==================================================
-# Removed the fallback for production to ensure you are notified if the key is missing
+# No fallback used here so Render will use your new random Secret Key
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Positioned for static file efficiency
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Handles static files efficiently
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -108,7 +108,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# Non-manifest storage prevents 404s if a single file is missing
+# Non-manifest storage prevents the 404 admin design break
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 WHITENOISE_KEEP_FILES_ON_CLEANUP = True
 
@@ -121,11 +121,11 @@ MEDIA_ROOT = BASE_DIR / "media"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True # Required for Gmail security handshake
+EMAIL_USE_TLS = True # Required for Gmail security
 
-# FIXED: Now matches your Render Dashboard Key names exactly
+# UPDATED: Matches your Render Dashboard Keys exactly as of your last screenshot
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD") 
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
