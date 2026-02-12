@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ==================================================
 # SECURITY
 # ==================================================
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-local-dev")
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
@@ -31,7 +31,6 @@ CSRF_TRUSTED_ORIGINS = [
 # ==================================================
 INSTALLED_APPS = [
     "core",
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -39,7 +38,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-
     "crispy_forms",
     "crispy_tailwind",
     "widget_tweaks",
@@ -85,9 +83,11 @@ WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 # ==================================================
 # DATABASE
 # ==================================================
+# This looks for DATABASE_URL in Render env vars. 
+# If not found (locally), it falls back to SQLite.
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
         conn_max_age=600,
         ssl_require=not DEBUG,
     )
@@ -130,6 +130,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+# Matches the 'EMAIL_PASSWORD' key from your Render dashboard
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
