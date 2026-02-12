@@ -1,6 +1,6 @@
 """
 Django settings for lostandfound_project
-Production-ready configuration for Render
+Production-ready & Memory-Optimized for Render
 """
 
 import os
@@ -12,9 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ==================================================
 # SECURITY
 # ==================================================
-# No fallback used here so Render will use your new random Secret Key
 SECRET_KEY = os.environ.get("SECRET_KEY")
-
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
@@ -53,7 +51,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Handles static files efficiently
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Positioned for static file efficiency
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -83,12 +81,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 
 # ==================================================
-# DATABASE
+# DATABASE (Memory Optimized)
 # ==================================================
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
+        conn_max_age=60, # Reduced to 60s to free up memory faster
         ssl_require=not DEBUG,
     )
 }
@@ -116,21 +114,28 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ==================================================
+# AUTHENTICATION REDIRECTS (FIXES /accounts/profile/ 404)
+# ==================================================
+# This forces Django to go to your dashboard instead of the default profile path
+LOGIN_URL = "core:login"
+LOGIN_REDIRECT_URL = "core:dashboard"
+LOGOUT_REDIRECT_URL = "core:home"
+
+# ==================================================
 # EMAIL CONFIGURATION
 # ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True # Required for Gmail security
+EMAIL_USE_TLS = True 
 
-# UPDATED: Matches your Render Dashboard Keys exactly as of your last screenshot
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
 # ==================================================
-# CRISPY FORMS & LOGGING
+# CRISPY FORMS & SIMPLIFIED LOGGING
 # ==================================================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
@@ -139,16 +144,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
-            "style": "{",
-        },
-    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
         },
     },
     "root": {
