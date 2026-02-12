@@ -27,6 +27,7 @@ CSRF_TRUSTED_ORIGINS = [
 # APPLICATIONS & MIDDLEWARE
 # ==================================================
 INSTALLED_APPS = [
+    "cloudinary_storage",  # MUST be above staticfiles
     "core",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",  
     "django.contrib.staticfiles",
+    "cloudinary",          # Add this for media handling
     "django.contrib.humanize",
     "crispy_forms",
     "crispy_tailwind",
@@ -84,14 +86,24 @@ DATABASES = {
 }
 
 # ==================================================
-# STATIC FILES (WhiteNoise Optimized)
+# STATIC & CLOUD MEDIA STORAGE
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
-
-# Using basic compression (Non-manifest) to avoid memory-heavy hashing
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
+# Cloudinary Configuration for persistent media
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # ==================================================
 # AUTHENTICATION REDIRECTS (FIXES /profile/ 404)
