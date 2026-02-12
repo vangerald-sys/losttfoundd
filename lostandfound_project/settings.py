@@ -1,158 +1,163 @@
 """
-Django settings for lostandfound_project project.
-Updated for Render Deployment: Security, Database, and Static fixes.
+Django settings for lostandfound_project
+Production-ready configuration for Render
 """
 
 import os
 from pathlib import Path
 import dj_database_url
-from dotenv import load_dotenv
-
-# --------------------------------------------------
-# LOAD ENVIRONMENT VARIABLES
-# --------------------------------------------------
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --------------------------------------------------
-# SECURITY SETTINGS
-# --------------------------------------------------
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key')
+# ==================================================
+# SECURITY
+# ==================================================
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-# Set DEBUG to True in Render Environment Variables for troubleshooting
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['losttfoundd-r41v.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    "lostfoundd-r41v.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
-# CSRF_TRUSTED_ORIGINS is mandatory for Django 4+ on Render to prevent 403/500 errors on forms
-CSRF_TRUSTED_ORIGINS = ['https://losttfoundd-r41v.onrender.com']
+CSRF_TRUSTED_ORIGINS = [
+    "https://lostfoundd-r41v.onrender.com",
+]
 
-# --------------------------------------------------
+# ==================================================
 # APPLICATIONS
-# --------------------------------------------------
+# ==================================================
 INSTALLED_APPS = [
-    'core',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    
-    'crispy_forms',
-    'crispy_tailwind',
-    'widget_tweaks',
+    "core",
+
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+
+    "crispy_forms",
+    "crispy_tailwind",
+    "widget_tweaks",
 ]
 
-# --------------------------------------------------
+# ==================================================
 # MIDDLEWARE
-# --------------------------------------------------
+# ==================================================
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'lostandfound_project.urls'
+ROOT_URLCONF = "lostandfound_project.urls"
 
-# --------------------------------------------------
+# ==================================================
 # TEMPLATES
-# --------------------------------------------------
+# ==================================================
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], 
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-# --------------------------------------------------
+WSGI_APPLICATION = "lostandfound_project.wsgi.application"
+
+# ==================================================
 # DATABASE
-# --------------------------------------------------
+# ==================================================
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=not DEBUG,
     )
 }
 
-# --------------------------------------------------
+# ==================================================
 # INTERNATIONALIZATION
-# --------------------------------------------------
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Manila'
+# ==================================================
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Manila"
 USE_I18N = True
 USE_TZ = True
 
-# --------------------------------------------------
-# STATIC & MEDIA FILES
-# --------------------------------------------------
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# ==================================================
+# STATIC FILES
+# ==================================================
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-if (BASE_DIR / 'static').exists():
-    STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
-# --------------------------------------------------
+# ==================================================
 # AUTH SETTINGS
-# --------------------------------------------------
-LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'core:dashboard'
-LOGOUT_REDIRECT_URL = 'core:home'
+# ==================================================
+LOGIN_URL = "core:login"
+LOGIN_REDIRECT_URL = "core:dashboard"
+LOGOUT_REDIRECT_URL = "core:home"
 
-# --------------------------------------------------
-# EMAIL SETTINGS
-# --------------------------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+# ==================================================
+# EMAIL CONFIGURATION
+# ==================================================
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'geraldcudia19@gmail.com'
-# App Password from Google: dqzpdnqcyxftvzxz
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD', 'dqzpdnqcyxftvzxz').strip()
-DEFAULT_FROM_EMAIL = 'FOUND.IT SYSTEMS <geraldcudia19@gmail.com>'
 
-# --------------------------------------------------
-# LOGGING (This will show the real error in Render logs)
-# --------------------------------------------------
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
-# --------------------------------------------------
+DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
+
+# ==================================================
 # CRISPY FORMS
-# --------------------------------------------------
+# ==================================================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ==================================================
+# DEFAULT PRIMARY KEY
+# ==================================================
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ==================================================
+# LOGGING (Show errors in Render logs)
+# ==================================================
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
