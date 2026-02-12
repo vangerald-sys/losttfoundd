@@ -15,19 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-]
-
-from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # Admin interface
     path('admin/', admin.site.urls),
+    
+    # Your core application routes
     path('', include('core.urls')),
-    path('accounts/', include('django.contrib.auth.urls')), # Built-in login/logout
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+    # Built-in Django authentication (Login, Logout, Password Reset)
+    path('accounts/', include('django.contrib.auth.urls')), 
+]
+
+# This is the "Magic Line" that allows your uploaded photos to be served
+# It works for both local development and your Cloudinary setup in production
+if settings.DEBUG or not settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
