@@ -16,7 +16,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-loca
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# Fixed: Includes both variations and wildcards to prevent DisallowedHost errors
 ALLOWED_HOSTS = [
     "lostfoundd-r41v.onrender.com",
     "losttfoundd-r41v.onrender.com",
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",  # Helps with static files in development
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "crispy_forms",
@@ -52,7 +52,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # MUST stay right here
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -104,11 +104,13 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES
+# STATIC FILES (Crucial for Admin Design)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
+
+# Tells Django to use WhiteNoise for serving CSS/JS on Render
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
@@ -122,13 +124,14 @@ LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
 # ==================================================
-# EMAIL CONFIGURATION (Corrected for Gmail App Password)
+# EMAIL CONFIGURATION (Gmail App Password)
 # ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+# These pull from your Render Environment Variables
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
