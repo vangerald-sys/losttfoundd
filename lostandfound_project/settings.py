@@ -123,7 +123,7 @@ EMAIL_USE_TLS = True
 
 # Match these exactly to your Render Environment Variable Keys
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD") 
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
@@ -154,3 +154,4 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
