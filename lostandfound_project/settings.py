@@ -16,14 +16,19 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-loca
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
+# Fixed: Added the correct URL from your error logs (losttfoundd with two 't's)
 ALLOWED_HOSTS = [
     "lostfoundd-r41v.onrender.com",
+    "losttfoundd-r41v.onrender.com",
     "localhost",
     "127.0.0.1",
+    ".onrender.com",
 ]
 
+# Fixed: Added the correct origin for CSRF protection
 CSRF_TRUSTED_ORIGINS = [
     "https://lostfoundd-r41v.onrender.com",
+    "https://losttfoundd-r41v.onrender.com",
 ]
 
 # ==================================================
@@ -83,8 +88,6 @@ WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 # ==================================================
 # DATABASE
 # ==================================================
-# This looks for DATABASE_URL in Render env vars. 
-# If not found (locally), it falls back to SQLite.
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -130,7 +133,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-# Matches the 'EMAIL_PASSWORD' key from your Render dashboard
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
@@ -147,7 +149,7 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==================================================
-# LOGGING (Show errors in Render logs)
+# LOGGING
 # ==================================================
 LOGGING = {
     "version": 1,
