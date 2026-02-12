@@ -1,8 +1,3 @@
-"""
-Django settings for lostandfound_project
-Production-ready & Memory-Optimized for Render
-"""
-
 import os
 from pathlib import Path
 import dj_database_url
@@ -29,7 +24,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # ==================================================
-# APPLICATIONS
+# APPLICATIONS & MIDDLEWARE
 # ==================================================
 INSTALLED_APPS = [
     "core",
@@ -46,12 +41,9 @@ INSTALLED_APPS = [
     "widget_tweaks",
 ]
 
-# ==================================================
-# MIDDLEWARE
-# ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Positioned for static file efficiency
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Keep after Security
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -86,71 +78,54 @@ WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
-        conn_max_age=60, # Reduced to 60s to free up memory faster
+        conn_max_age=30, # Low value saves RAM
         ssl_require=not DEBUG,
     )
 }
 
 # ==================================================
-# INTERNATIONALIZATION
-# ==================================================
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "Asia/Manila"
-USE_I18N = True
-USE_TZ = True
-
-# ==================================================
-# STATIC FILES
+# STATIC FILES (WhiteNoise Optimized)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# Non-manifest storage prevents the 404 admin design break
+# Using basic compression (Non-manifest) to avoid memory-heavy hashing
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-WHITENOISE_KEEP_FILES_ON_CLEANUP = True
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 # ==================================================
-# AUTHENTICATION REDIRECTS (FIXES /accounts/profile/ 404)
+# AUTHENTICATION REDIRECTS (FIXES /profile/ 404)
 # ==================================================
-# This forces Django to go to your dashboard instead of the default profile path
 LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
 # ==================================================
-# EMAIL CONFIGURATION
+# EMAIL (Verified with your Render Dashboard)
 # ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
-
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
 # ==================================================
-# CRISPY FORMS & SIMPLIFIED LOGGING
+# MISC
 # ==================================================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Manila"
+USE_I18N = True
+USE_TZ = True
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
 }
