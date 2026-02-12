@@ -2,12 +2,13 @@ import os
 from pathlib import Path
 import dj_database_url
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ==================================================
 # SECURITY
 # ==================================================
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-default-key")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
@@ -28,7 +29,6 @@ CSRF_TRUSTED_ORIGINS = [
 # ==================================================
 INSTALLED_APPS = [
     "cloudinary_storage",  # MUST be above staticfiles
-    "core",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",  
     "django.contrib.staticfiles",
-    "cloudinary",          # Add this for media handling
+    "cloudinary",          # Required for Cloudinary
+    "core",                # Your app
     "django.contrib.humanize",
     "crispy_forms",
     "crispy_tailwind",
@@ -45,7 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Keep after Security
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Must follow SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -75,12 +76,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 
 # ==================================================
-# DATABASE (Memory Optimized)
+# DATABASE (Optimized for Render)
 # ==================================================
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
-        conn_max_age=30, # Low value saves RAM
+        conn_max_age=30, 
         ssl_require=not DEBUG,
     )
 }
@@ -91,6 +92,8 @@ DATABASES = {
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
+
+# WhiteNoise storage for static files
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # Cloudinary Configuration for persistent media
@@ -100,20 +103,21 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
+# Use Cloudinary for media (image) storage
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ==================================================
-# AUTHENTICATION REDIRECTS (FIXES /profile/ 404)
+# AUTHENTICATION REDIRECTS
 # ==================================================
 LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
 # ==================================================
-# EMAIL (Verified with your Render Dashboard)
+# EMAIL SETTINGS
 # ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
