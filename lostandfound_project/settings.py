@@ -13,8 +13,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # ==================================================
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key-for-local-dev")
-
-# Keep DEBUG False in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
@@ -53,7 +51,7 @@ INSTALLED_APPS = [
 # ==================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correctly placed
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # MUST be after SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -64,9 +62,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "lostandfound_project.urls"
 
-# ==================================================
-# TEMPLATES
-# ==================================================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -105,25 +100,18 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES (FIXED FOR DESIGN)
+# STATIC FILES (CSS/JS serving via WhiteNoise)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# CHANGED: Switched to the more stable version to fix 404 design errors
+# Stable WhiteNoise storage for Render
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 WHITENOISE_KEEP_FILES_ON_CLEANUP = True
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-# ==================================================
-# AUTH SETTINGS
-# ==================================================
-LOGIN_URL = "core:login"
-LOGIN_REDIRECT_URL = "core:dashboard"
-LOGOUT_REDIRECT_URL = "core:home"
 
 # ==================================================
 # EMAIL CONFIGURATION
@@ -133,25 +121,19 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+# Match these exactly to your Render Environment Variable Keys
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD") 
 
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
 # ==================================================
-# CRISPY FORMS
+# CRISPY FORMS & LOGGING
 # ==================================================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
-
-# ==================================================
-# DEFAULT PRIMARY KEY
-# ==================================================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ==================================================
-# LOGGING
-# ==================================================
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
