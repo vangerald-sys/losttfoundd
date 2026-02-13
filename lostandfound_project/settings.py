@@ -106,7 +106,7 @@ DATABASES = {
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# FIX: Point exactly to your core app's static folder where style.css is
+# FIX: Found your CSS in losttfoundd/core/static/css
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "static",
 ]
@@ -120,7 +120,6 @@ STORAGES = {
     },
 }
 
-# Legacy bridges
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
@@ -150,14 +149,16 @@ LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
-# EMAIL CONFIGURATION (Fixes 500 error)
+# EMAIL CONFIGURATION (Port 465/SSL is more stable on Render)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True 
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True  
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-# MUST BE 16-CHAR APP PASSWORD
+# MUST BE 16-CHAR APP PASSWORD FROM GOOGLE
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
+EMAIL_TIMEOUT = 30
 
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
