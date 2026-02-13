@@ -28,6 +28,9 @@ ALLOWED_HOSTS = [
     ".onrender.com",
 ]
 
+# FIX: Add this so Django trusts Render's HTTPS proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 CSRF_TRUSTED_ORIGINS = [
     "https://lostfoundd-r41v.onrender.com",
     "https://losttfoundd-r41v.onrender.com",
@@ -102,12 +105,8 @@ DATABASES = {
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# We keep this empty to avoid duplicate file warnings
 STATICFILES_DIRS = [] 
 
-# STABLE CONFIG: Use Standard StaticFilesStorage
-# This prevents FileNotFoundError by skipping pre-compression during build
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -117,11 +116,9 @@ STORAGES = {
     },
 }
 
-# Legacy bridges for Django 4.2+ / 5.x
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# WhiteNoise will handle serving and compression on-the-fly
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 
@@ -148,12 +145,16 @@ LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
+# EMAIL CONFIGURATION
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") # Must be 16-character App Password
+
+# FIX: Added SERVER_EMAIL and properly formatted DEFAULT_FROM_EMAIL
+SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
