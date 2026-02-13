@@ -5,6 +5,13 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+# 1. Load environment variables from a .env file (if it exists)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,8 +46,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",  
     "django.contrib.staticfiles",
-    "cloudinary",          # Required for Cloudinary
-    "core",                # Your app
+    "cloudinary",          
+    "core",                
     "django.contrib.humanize",
     "crispy_forms",
     "crispy_tailwind",
@@ -79,11 +86,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 
 # ==================================================
-# DATABASE (Optimized for Render)
+# DATABASE (Fixed for Local + Render)
 # ==================================================
+# If DATABASE_URL is not found, use local SQLite
+DEFAULT_DATABASE_URL = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
+        default=os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL),
         conn_max_age=30, 
         ssl_require=not DEBUG,
     )
@@ -97,27 +107,29 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "static",
 ]
-# WhiteNoise storage for static files
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
-# Cloudinary Configuration for persistent media
-# These look for the keys we set in Render Dashboard
+# Modern Django 4.2+ Storage Configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-# Explicitly configure cloudinary library
 cloudinary.config(
     cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
     api_key = os.environ.get('CLOUDINARY_API_KEY'),
     api_secret = os.environ.get('CLOUDINARY_API_SECRET'),
     secure = True
 )
-
-# Use Cloudinary for media (image) storage
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -158,4 +170,3 @@ LOGGING = {
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "root": {"handlers": ["console"], "level": "INFO"},
 }
-
