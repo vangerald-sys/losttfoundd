@@ -28,7 +28,7 @@ ALLOWED_HOSTS = [
     ".onrender.com",
 ]
 
-# FIX: Add this so Django trusts Render's HTTPS proxy
+# CRITICAL FOR RENDER: Tells Django it is behind a secure HTTPS proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CSRF_TRUSTED_ORIGINS = [
@@ -72,7 +72,7 @@ ROOT_URLCONF = "lostandfound_project.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"], # Important for your custom design
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -151,9 +151,10 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") # Must be 16-character App Password
+# This MUST be a 16-character App Password, not your login password
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
 
-# FIX: Added SERVER_EMAIL and properly formatted DEFAULT_FROM_EMAIL
+# FIX: SERVER_EMAIL is used for system logs; DEFAULT_FROM_EMAIL for resets
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
