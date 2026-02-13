@@ -117,7 +117,10 @@ STORAGES = {
     },
 }
 
-# LEGACY SETTINGS (Required because Cloudinary library hasn't updated for Django 5.x)
+# FIX: WhiteNoise strict mode off to prevent "MissingFileError" during collectstatic
+WHITENOISE_MANIFEST_STRICT = False
+
+# FIX: Legacy settings for Cloudinary library compatibility
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
