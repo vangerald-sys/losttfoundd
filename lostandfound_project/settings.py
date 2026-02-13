@@ -86,7 +86,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 
 # ==================================================
-# DATABASE (Fixed for Local + Render)
+# DATABASE
 # ==================================================
 DEFAULT_DATABASE_URL = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 
@@ -107,22 +107,22 @@ STATICFILES_DIRS = [
     BASE_DIR / "core" / "static",
 ]
 
-# Modern Django 4.2+ Storage Configuration
+# Updated to use CompressedStaticFilesStorage (Safe from MissingFileErrors)
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
-# FIX: WhiteNoise strict mode off to prevent "MissingFileError" during collectstatic
-WHITENOISE_MANIFEST_STRICT = False
-
-# FIX: Legacy settings for Cloudinary library compatibility
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Legacy Settings for Cloudinary/WhiteNoise Compatibility
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# Disable strict checking of CSS file references
+WHITENOISE_MANIFEST_STRICT = False
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
