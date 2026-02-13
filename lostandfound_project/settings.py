@@ -28,7 +28,7 @@ ALLOWED_HOSTS = [
     ".onrender.com",
 ]
 
-# CRITICAL FOR RENDER: Tells Django it is behind a secure HTTPS proxy
+# CRITICAL FOR RENDER: Fixes 403 Forbidden and 500 errors on HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CSRF_TRUSTED_ORIGINS = [
@@ -72,7 +72,7 @@ ROOT_URLCONF = "lostandfound_project.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"], # Important for your custom design
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -105,7 +105,11 @@ DATABASES = {
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [] 
+
+# FIX: Point exactly to your core app's static folder where style.css is
+STATICFILES_DIRS = [
+    BASE_DIR / "core" / "static",
+]
 
 STORAGES = {
     "default": {
@@ -116,6 +120,7 @@ STORAGES = {
     },
 }
 
+# Legacy bridges
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
@@ -145,16 +150,15 @@ LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
-# EMAIL CONFIGURATION
+# EMAIL CONFIGURATION (Fixes 500 error)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-# This MUST be a 16-character App Password, not your login password
+# MUST BE 16-CHAR APP PASSWORD
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
 
-# FIX: SERVER_EMAIL is used for system logs; DEFAULT_FROM_EMAIL for resets
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
