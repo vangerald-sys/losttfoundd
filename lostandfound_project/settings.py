@@ -103,24 +103,26 @@ DATABASES = {
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# We keep this empty to avoid the "Found another file with path..." warnings
+# We keep this empty to avoid duplicate file warnings
 STATICFILES_DIRS = [] 
 
-# FIX: Use CompressedStaticFilesStorage (Dropping 'Manifest' prevents FileNotFoundError)
+# STABLE CONFIG: Use Standard StaticFilesStorage
+# This prevents FileNotFoundError by skipping pre-compression during build
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# Legacy bridges for library compatibility
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# Legacy bridges for Django 4.2+ / 5.x
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# Final guard against crashes on missing third-party files
+# WhiteNoise will handle serving and compression on-the-fly
+WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 
 CLOUDINARY_STORAGE = {
