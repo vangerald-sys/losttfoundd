@@ -5,14 +5,13 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# 1. Load environment variables from a .env file (if it exists)
+# 1. Load environment variables
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
     pass
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ==================================================
@@ -103,11 +102,11 @@ DATABASES = {
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "core" / "static",
-]
 
-# Updated to use CompressedStaticFilesStorage (Safe from MissingFileErrors)
+# We keep this empty to avoid the "Found another file with path..." warnings
+STATICFILES_DIRS = [] 
+
+# FIX: Use CompressedStaticFilesStorage (Dropping 'Manifest' prevents FileNotFoundError)
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -117,11 +116,11 @@ STORAGES = {
     },
 }
 
-# Legacy Settings for Cloudinary/WhiteNoise Compatibility
+# Legacy bridges for library compatibility
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# Disable strict checking of CSS file references
+# Final guard against crashes on missing third-party files
 WHITENOISE_MANIFEST_STRICT = False
 
 CLOUDINARY_STORAGE = {
@@ -141,27 +140,20 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ==================================================
-# AUTHENTICATION REDIRECTS
+# REDIRECTS, EMAIL, & MISC
 # ==================================================
 LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:dashboard"
 LOGOUT_REDIRECT_URL = "core:home"
 
-# ==================================================
-# EMAIL SETTINGS
-# ==================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") 
-
 DEFAULT_FROM_EMAIL = f"FOUND.IT SYSTEMS <{EMAIL_HOST_USER}>"
 
-# ==================================================
-# MISC
-# ==================================================
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -176,4 +168,3 @@ LOGGING = {
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "root": {"handlers": ["console"], "level": "INFO"},
 }
-
