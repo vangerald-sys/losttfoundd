@@ -88,7 +88,6 @@ WSGI_APPLICATION = "lostandfound_project.wsgi.application"
 # ==================================================
 # DATABASE (Fixed for Local + Render)
 # ==================================================
-# If DATABASE_URL is not found, use local SQLite
 DEFAULT_DATABASE_URL = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 
 DATABASES = {
@@ -117,6 +116,10 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# LEGACY SETTINGS (Required because Cloudinary library hasn't updated for Django 5.x)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
